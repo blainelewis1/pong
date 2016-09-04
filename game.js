@@ -45,7 +45,7 @@ function Game(player1Connection, player2Connection) {
 
         player1Connection.sendUTF(JSON.stringify(that));
         player2Connection.sendUTF(JSON.stringify(that));
-        timeout = setTimeout(tick, 50);
+        timeout = setTimeout(tick, 20);
     };
 
     var detectScore = function() {
