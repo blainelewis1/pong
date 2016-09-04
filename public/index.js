@@ -1,9 +1,4 @@
-//TODO: Expand to fill window
 //TODO: support mobile.
-
-//TODO: Display "waiting" message
-//TODO: Display "opponent left" message
-//TODO: Endgame after score gets to 5?
 
 /* global Globals */
 
@@ -12,18 +7,20 @@ var context = canvas.getContext("2d");
 
 var webSocket = new WebSocket("ws://localhost:3000");
 
-window.innerWidth;
-window.innerHeight;
-
-canvas.width = Globals.Game.STAGE_WIDTH;
-canvas.height = Globals.Game.STAGE_HEIGHT;
-
 window.addEventListener("resize", sizeCanvas);
 
 sizeCanvas();
 
 function sizeCanvas() {
+    if(window.innerWidth / Globals.Game.ASPECT_RATIO > window.innerHeight) {
+        canvas.height = window.innerHeight;
+        canvas.width = canvas.height * Globals.Game.ASPECT_RATIO; 
+    } else {
+        canvas.width = window.innerWidth;
+        canvas.height = canvas.width / Globals.Game.ASPECT_RATIO;
+    }
 
+    context.scale(canvas.width / Globals.Game.STAGE_WIDTH, canvas.height / Globals.Game.STAGE_HEIGHT);
 }
 
 webSocket.onmessage = function(event) {
@@ -38,7 +35,7 @@ webSocket.onmessage = function(event) {
 
 function drawMessage(msg) {
     context.clearRect(0, 0, Globals.Game.STAGE_WIDTH, Globals.Game.STAGE_HEIGHT);
-    
+
     var size = 30;
     context.font = size + "px Arial";
     context.fillStyle = "#666666";
