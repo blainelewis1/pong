@@ -1,4 +1,5 @@
 //TODO: support mobile.
+//TODO: display instructions. 
 
 /* global Globals */
 
@@ -93,5 +94,80 @@ function sendKeys(e) {
     } 
 }
 
+var touch;
+
+function touchStart(e) {
+    if(!touch) {
+        touch = e.changedTouches[0];
+        
+        var down = {key : "down", state: false};
+        var up = {key : "up", state: false};
+        
+        if(touch.screenY > window.innerHeight / 2) {
+            down.state = true;
+        } else {
+            up.state = true;
+        }
+
+        webSocket.send(JSON.stringify(down));
+        webSocket.send(JSON.stringify(up));
+    }
+
+    e.preventDefault();
+}
+
+function touchMove(e) {
+    if(!touch) {
+        return;
+    }
+    
+    //TODO: only send message if state actually changes.
+    
+    for(var i = 0; i < e.changedTouches.length; i++) {
+        var changedTouch = e.changedTouches[i];
+        
+        if(changedTouch.id === touch.id) {
+            touch = changedTouch;
+            
+            var down = {key : "down", state: false};
+            var up = {key : "up", state: false};
+            if(touch.screenY > window.innerHeight / 2) {
+                down.state = true;
+            } else {
+                up.state = true;
+            }
+
+            webSocket.send(JSON.stringify(down));
+            webSocket.send(JSON.stringify(up));
+        }
+    }
+
+    e.preventDefault();  
+}
+
+function touchEnd(e) {
+    if(!touch) {
+        return;
+    }
+
+    for(var i = 0; i < e.changedTouches.length; i++) {
+        var changedTouch = e.changedTouches[i];
+        if(changedTouch.id === touch.id) {
+            //TODO: only send the one we need
+            webSocket.send(JSON.stringify({key : "down", state: false}));
+            webSocket.send(JSON.stringify({key : "up", state: false}));
+            touch = undefined;
+        }
+    }
+
+    e.preventDefault();
+}
+
 document.addEventListener("keyup", sendKeys);
 document.addEventListener("keydown", sendKeys);
+
+document.addEventListener("touchstart", touchStart);
+document.addEventListener("touchmove", touchMove);
+
+document.addEventListener("touchend", touchEnd);
+document.addEventListener("touchcancel", touchEnd);
